@@ -29,10 +29,10 @@ Plugin `agents/` profiles are local-session only (CLI + Desktop). Cloud Devin se
 
 | role | profile | model |
 |---|---|---|
-| workers, fan-out | `pstack:worker` | swe-2-max (free) |
+| workers, fan-out, poteto-mode runner, comment review | `pstack:worker`, `pstack:poteto-agent`, `pstack:comment-sicko` | swe-2-max (free) |
 | alternate worker | `pstack:luna` | gpt-5-6-luna-xhigh |
 | heavy implementation | `pstack:sol` | gpt-5-6-sol-high |
-| judgment + review seats | `pstack:fable`, `pstack:poteto-agent`, `pstack:comment-sicko` | claude-fable-5-1-max |
+| judgment + review seat | `pstack:fable` | claude-fable-5-1-max |
 | panel seats | `pstack:terra`, `pstack:kimi` | terra-xhigh, kimi-k3-max |
 | judgment + prose | `subagent_general` | inherits parent |
 | read-only explore | `subagent_explore` | router default |
