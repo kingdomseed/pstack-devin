@@ -192,7 +192,7 @@ describe("closed enum parsing", () => {
   });
 });
 
-it("annotates Bugbot threads with distinct review-pass counts", () => {
+it("annotates review-bot threads with distinct review-pass counts", () => {
   const response = {
     data: {
       repository: {
@@ -230,12 +230,57 @@ it("annotates Bugbot threads with distinct review-pass counts", () => {
                 },
               },
               {
+                id: "devin",
+                isResolved: false,
+                comments: {
+                  nodes: [
+                    {
+                      body: "RUN_ID: run-3",
+                      createdAt: "now",
+                      path: "b.ts",
+                      line: 2,
+                      author: { login: "devin-ai-integration[bot]" },
+                    },
+                  ],
+                },
+              },
+              {
+                id: "devin-marker",
+                isResolved: false,
+                comments: {
+                  nodes: [
+                    {
+                      body: "Devin Review flagged 2 issues",
+                      createdAt: "now",
+                      path: null,
+                      line: null,
+                      author: { login: "octocat" },
+                    },
+                  ],
+                },
+              },
+              {
+                id: "human",
+                isResolved: false,
+                comments: {
+                  nodes: [
+                    {
+                      body: "lgtm",
+                      createdAt: "now",
+                      path: null,
+                      line: null,
+                      author: { login: "jasonholt" },
+                    },
+                  ],
+                },
+              },
+              {
                 id: "resolved",
                 isResolved: true,
                 comments: {
                   nodes: [
                     {
-                      body: "RUN_ID: run-3",
+                      body: "RUN_ID: run-4",
                       createdAt: "now",
                       path: null,
                       line: null,
@@ -251,9 +296,17 @@ it("annotates Bugbot threads with distinct review-pass counts", () => {
     },
   };
   const threads = parseReviewThreads(response);
-  expect(threads).toHaveLength(2);
-  expect(threads.map((thread) => thread.isBugbot)).toEqual([true, true]);
-  expect(threads.map((thread) => thread.bugbotReviewPasses)).toEqual([3, 3]);
+  expect(threads).toHaveLength(5);
+  expect(threads.map((thread) => thread.isReviewBot)).toEqual([
+    true,
+    true,
+    true,
+    true,
+    false,
+  ]);
+  expect(threads.map((thread) => thread.reviewBotPasses)).toEqual([
+    4, 4, 4, 4, 4,
+  ]);
 });
 
 describe("context and stack discovery", () => {

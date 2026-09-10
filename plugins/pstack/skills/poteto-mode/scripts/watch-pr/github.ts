@@ -330,12 +330,20 @@ function parseComment(value: unknown): T.ReviewComment {
     createdAt: string(object.createdAt, "review comment.createdAt"),
   };
 }
-function isBugbot(comment: T.ReviewComment | null): boolean {
+// Review-bot detection covers both generations of automation. Author logins:
+// bugbot* and cursor (Bugbot, Cursor automations) plus devin,
+// devin-ai-integration, and devin-review (Devin Review). The `cursor` login is
+// a shared automation account, so it only counts when the body carries an
+// automation marker. Devin markers ("devin review", "bug catcher") match the
+// body regardless of author because Devin Review and Bug Catcher comments can
+// arrive under the app or the operator's own login.
+function isReviewBot(comment: T.ReviewComment | null): boolean {
   if (comment === null) return false;
   const author = (comment.authorLogin ?? "").toLowerCase();
   const body = comment.body.toLowerCase();
   return (
     author.includes("bugbot") ||
+    author.includes("devin") ||
     (author === "cursor" &&
       [
         "bugbot",
@@ -343,7 +351,8 @@ function isBugbot(comment: T.ReviewComment | null): boolean {
         "agentic security review",
         "description start",
         "severity",
-      ].some((token) => body.includes(token)))
+      ].some((token) => body.includes(token))) ||
+    ["devin review", "bug catcher"].some((token) => body.includes(token))
   );
 }
 function passKey(comment: T.ReviewComment | null): string | null {
@@ -384,7 +393,7 @@ export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
   const keys = new Set<string>();
   let keyless = false;
   for (const thread of threads) {
-    if (!isBugbot(thread.firstComment)) continue;
+    if (!isReviewBot(thread.firstComment)) continue;
     const key = passKey(thread.firstComment);
     if (key === null) keyless = true;
     else keys.add(key);
@@ -395,8 +404,8 @@ export function parseReviewThreads(value: unknown): readonly T.ReviewThread[] {
     .map(({ id, firstComment }) => ({
       id,
       firstComment,
-      isBugbot: isBugbot(firstComment),
-      bugbotReviewPasses: passes,
+      isReviewBot: isReviewBot(firstComment),
+      reviewBotPasses: passes,
     }));
 }
 export function parsePullRequest(

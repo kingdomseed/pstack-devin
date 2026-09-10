@@ -19,31 +19,28 @@ When in doubt, take the simple path.
 
 ## Step 2a. Explore (complex questions only)
 
-Decompose the question into 2 to 4 exploration angles, each a distinct slice of the subsystem. Spawn all explorers in a single message:
+Decompose the question into 2 to 4 exploration angles, each a distinct slice of the subsystem. Spawn all explorers in a single message with `run_subagent`:
 
-- `subagent_type`: `generalPurpose`
-- `model`: your configured how-explorer model (default `grok-4.6-fast-xhigh`)
-- `readonly`: `true`
+- `profile`: your configured `how explorer` entry from `~/.devin/rules/pstack-models.md` (default `pstack:worker`)
+- `is_background`: `true`
+
+Explorers are read-only by instruction; tell them to gather facts and not modify files. To enforce read-only instead of instructing it, spawn on `subagent_explore`, which gives up the configured model for the router's.
 
 Each explorer gets the prompt in `references/explorer-prompt.md` with its angle filled in. Then go to Step 3.
 
 ## Step 2b. Direct Explain (simple questions)
 
-Spawn one Task subagent that explores and explains in one pass:
+Spawn one `run_subagent` subagent that explores and explains in one pass:
 
-- `subagent_type`: `generalPurpose`
-- `model`: your configured how-explainer model (default `claude-fable-5-1-thinking-max`)
-- `readonly`: `true`
+- `profile`: your configured `how explainer` entry from `~/.devin/rules/pstack-models.md` (default `subagent_general`)
 
 Build its prompt from `references/explainer-prompt.md` without the explorer-findings section. Go to Step 4.
 
 ## Step 3. Synthesize (complex questions only)
 
-Once all explorers have returned, spawn one Task subagent to synthesize their findings into one explanation:
+Once all explorers have returned, spawn one `run_subagent` subagent to synthesize their findings into one explanation:
 
-- `subagent_type`: `generalPurpose`
-- `model`: your configured how-explainer model (default `claude-fable-5-1-thinking-max`)
-- `readonly`: `true`
+- `profile`: your configured `how explainer` entry from `~/.devin/rules/pstack-models.md` (default `subagent_general`)
 
 Build its prompt from `references/explainer-prompt.md` with every explorer's findings filled in.
 

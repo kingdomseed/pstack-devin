@@ -22,14 +22,14 @@ Open a todolist with one entry per phase before launching anything.
 1. State the done predicate and the artifact or report the swarm must return.
 2. Choose the shape. Partition into slices, race N workers on identical briefs, or mix both. For a race or mixed shape, declare `first pass`, `rank all`, or `best-of` before spawning.
 3. Set N from the user or derive it from the shape. N is total workers, not the cloud concurrency limit.
-4. Pick the worker model from `swarm workers` in `~/.cursor/rules/pstack-models.mdc` when present. Otherwise use `grok-4.6-fast-xhigh`. For a model race, name each arm's model up front.
+4. Pick the worker profile from `swarm workers` in `~/.devin/rules/pstack-models.md` when present. Otherwise use `pstack:worker`. For a model race, name each arm's profile up front.
 5. Give each worker its own writable output when it writes.
 
 ## Phase B: Fan out
 
-Spawn all N workers in one message with `subagent_type: generalPurpose`, `environment: "cloud"`, `run_in_background: true`, and the configured model. Use `environment: "local"` only when the worker needs access to something on the user's computer.
+Launch all N workers as Devin cloud sessions in one pass, via `/handoff` or the v3 sessions API. Plugin `pstack:*` profiles are local-only, so cloud fan-out carries intent in the prompt, not a profile. Use local `run_subagent` workers (`is_background: true`, the configured profile) only when a worker needs access to something on the user's computer.
 
-When a worker must start from a non-default pushed branch, pass `cloud_base_branch`.
+When a worker must start from a non-default pushed branch, set the session's base branch.
 
 Every brief stands alone. Include the goal, scope, exact slice or race arm, how to verify, and what to report. Reports use `PASS`, `ISSUES`, or `BLOCKED` with evidence.
 
@@ -44,3 +44,5 @@ Keep a compact result table, one-line evidenced issues, and explicit gaps or dro
 ## Phase D: Report
 
 Return one consolidated in-chat report with the table, issue one-liners, gaps or dropouts, and the race rule when used.
+
+PORT-NOTE: Devin cloud sessions take a prompt and base branch but no per-spawn profile, so model races and the `swarm workers` profile pin only apply to local `run_subagent` fan-out. A model race in the cloud degrades to same-model arms differentiated by prompt.

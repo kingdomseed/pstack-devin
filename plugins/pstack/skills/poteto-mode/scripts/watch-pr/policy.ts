@@ -51,6 +51,8 @@ const AUTOMATION_TOKENS = [
   "security review",
   "pr review automation",
   "review automation",
+  "devin review",
+  "bug catcher",
 ] as const;
 export async function readSnapshot(args: {
   readonly reader: T.GitHubReader;

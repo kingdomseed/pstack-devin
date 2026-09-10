@@ -1,7 +1,8 @@
 ---
 name: reproduce-and-fix-issues
 description: Reproduce triaged Slack bugs through a configured app-control adapter, verify existing fixes, and open a bounded draft pull request only after before-and-after proof. Use only from the configured Benny repro automation.
-disable-model-invocation: true
+triggers:
+  - user
 ---
 
 # Reproduce and fix issues
@@ -16,9 +17,9 @@ Load the external Benny configuration supplied by the automation. If the config,
 - Never post a root message in the source channel.
 - Preflight the source parent before every source-thread post.
 - The coordinator is the only Slack poster.
-- Delegated analysis workers are read-only and return findings or media notes.
-- A fix-phase code worker may edit only when its environment provably excludes Slack credentials and every Slack write action. Otherwise the coordinator edits.
-- Every child prompt must explicitly forbid `SendSlackMessage`, `PostToSlack`, `chat.postMessage`, and all other Slack writes.
+- Delegated analysis subagents are read-only (`subagent_explore`) and return findings or media notes.
+- A fix-phase code subagent may edit only when its environment provably excludes Slack credentials and every Slack write action. Otherwise the coordinator edits.
+- Every child prompt must explicitly forbid `chat.postMessage` and all other Slack write actions, including thread replies, DMs, and reactions.
 - Never give a child a Slack token, posting instructions, source coordinates for posting, or permission to report externally.
 - If a child needs Slack write access to run, do not launch it.
 - Utility bots are evidence sources. They do not own the fix unless a person explicitly delegated the fix to them.
@@ -35,8 +36,8 @@ Load the external Benny configuration supplied by the automation. If the config,
 
 Before making a work list or delegating:
 
-1. Require the trigger channel to equal the configured source channel.
-2. Set `SOURCE_THREAD_TS` to `trigger.thread_ts` when present. Otherwise use `trigger.ts`.
+1. Require the triggering event's channel to equal the configured source channel.
+2. Set `SOURCE_THREAD_TS` to the event's thread timestamp when present. Otherwise use the triggering message's timestamp.
 3. Require a nonempty `SOURCE_THREAD_TS`.
 4. Store `SOURCE_CHANNEL_ID` and `SOURCE_THREAD_TS` as immutable values.
 5. Read the source thread and verify its root has those exact coordinates.
@@ -48,7 +49,7 @@ Before every source-channel post:
 
 1. Read the thread by the immutable coordinates.
 2. Confirm the parent exists, is not deleted, and still belongs to the source channel.
-3. Send only with `channel=SOURCE_CHANNEL_ID` and `thread_ts=SOURCE_THREAD_TS`.
+3. Send only as a reply in `SOURCE_CHANNEL_ID` under `SOURCE_THREAD_TS`.
 4. Read the thread again and verify the new message is a reply.
 
 If any check fails, post nothing. Never retry at the root or in a fallback channel.
@@ -119,7 +120,7 @@ Use the configured plain Unicode status strings. Keep status text short:
 - Draft pull request opened
 - Fix did not land
 
-Prefer configured Cursor Slack actions. Use `BENNY_SLACK_BOT_TOKEN` only when the user configured it for a narrow missing capability such as editing this one status message. Never expose the token to a worker.
+Prefer the Slack tools the automation grants through its `tools.slack_channels` allowlist. Use `BENNY_SLACK_BOT_TOKEN` only when the user configured it for a narrow missing capability such as editing this one status message; it lives in Devin org secrets and enters the session as `${BENNY_SLACK_BOT_TOKEN}`. Never expose the token to a subagent.
 
 If no operations channel is configured, keep detailed status in the automation run output. Do not substitute a source-channel root message.
 
@@ -156,7 +157,7 @@ Collect:
 - Attachments and error signatures
 - Candidate code area
 
-Inspect screenshots and video. Use read-only parallel workers for code history, test ideas, blast-radius mapping, and media review when useful. Each worker gets a narrow question and the Slack-write prohibition.
+Inspect screenshots and video. Use read-only parallel subagents for code history, test ideas, blast-radius mapping, and media review when useful. Each subagent gets a narrow question and the Slack-write prohibition.
 
 Use pstack's `how` skill to trace the action through the repository. Use `why` for regression history and defensive code. Form competing cause hypotheses and identify evidence that would separate them.
 
@@ -243,7 +244,7 @@ When the gate passes, update operations status to `Attempting bounded fix`.
 
 The coordinator owns every Slack post, the final diff review, commits, and the pull request.
 
-Read-only workers may:
+Read-only subagents may:
 
 - Trace code and history
 - Propose tests
@@ -253,7 +254,7 @@ Read-only workers may:
 
 They do not edit, run external writes, post status, or own the fix.
 
-A tightly scoped code edit may be delegated during this phase only when tool isolation removes Slack credentials and every Slack write action from that worker. Its prompt must still carry the explicit Slack-write ban. The coordinator reviews the edit and runs or verifies the required tests. If tool isolation is uncertain, keep the edit in the coordinator.
+A tightly scoped code edit may be delegated during this phase only when tool isolation removes Slack credentials and every Slack write action from that subagent. Its prompt must still carry the explicit Slack-write ban. The coordinator reviews the edit and runs or verifies the required tests. If tool isolation is uncertain, keep the edit in the coordinator.
 
 Confirm the mechanism with runtime evidence. Eliminate competing hypotheses before editing.
 

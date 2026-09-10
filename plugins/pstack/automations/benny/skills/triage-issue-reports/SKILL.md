@@ -1,7 +1,8 @@
 ---
 name: triage-issue-reports
 description: Triage Slack issue reports with one thread-only verdict, evidence review, cause-aware routing, tracker dedupe, and fail-closed ticket creation. Use only from the configured Benny triage automation.
-disable-model-invocation: true
+triggers:
+  - user
 ---
 
 # Triage issue reports
@@ -19,8 +20,8 @@ Load the external Benny configuration supplied by the automation. If the config 
 - If the parent is missing, deleted, inaccessible, or uncertain, stop with no writes.
 - Post one substantive verdict. Do not narrate progress.
 - The coordinator is the only Slack poster.
-- Delegated workers return findings only. They must be read-only and receive no Slack credentials or write actions.
-- Every child prompt must forbid `SendSlackMessage`, `PostToSlack`, `chat.postMessage`, and every other Slack write.
+- Delegated subagents return findings only. They must run read-only (`subagent_explore`) and receive no Slack credentials or write actions.
+- Every child prompt must forbid `chat.postMessage` and every other Slack write action, including thread replies, DMs, and reactions.
 - If worker isolation cannot enforce those limits, do the work in the coordinator.
 - Never create an issue that cannot link back to the source thread.
 - Prefer no ticket over a guessed or duplicate ticket.
@@ -31,9 +32,9 @@ Load the external Benny configuration supplied by the automation. If the config 
 
 Before making a work list or delegating:
 
-1. Read `source_channel_id` from the trigger.
+1. Read the source channel id from the triggering event payload.
 2. Require it to equal the configured source channel.
-3. Set `SOURCE_THREAD_TS` to `trigger.thread_ts` when present. Otherwise use `trigger.ts`.
+3. Set `SOURCE_THREAD_TS` to the event's thread timestamp when present. Otherwise use the triggering message's timestamp.
 4. Require a nonempty `SOURCE_THREAD_TS`.
 5. Store `SOURCE_CHANNEL_ID` and `SOURCE_THREAD_TS` as immutable values.
 6. Read the thread and verify that its root has exactly those coordinates.
@@ -61,7 +62,7 @@ Inspect every relevant attachment.
 - Read screenshots at full useful resolution.
 - Review video for the state transition that separates correct and broken behavior.
 - Read logs, traces, and crash text for concrete signatures.
-- If media needs specialist review, use a read-only media worker and ask a narrow question. The worker returns findings only.
+- If media needs specialist review, use a read-only media subagent and ask a narrow question. The subagent returns findings only.
 - If an attachment cannot be read, say so in the verdict. Do not invent what it shows.
 
 Use evidence already in the thread before asking the reporter for more.
@@ -199,9 +200,9 @@ Do not put a guessed root cause in the title.
 
 ## 9. Post one verdict
 
-Run a fresh source-parent preflight. Then post exactly one reply with `channel=SOURCE_CHANNEL_ID` and `thread_ts=SOURCE_THREAD_TS`.
+Run a fresh source-parent preflight. Then post exactly one reply targeted at `SOURCE_CHANNEL_ID` under `SOURCE_THREAD_TS`.
 
-Never call a source-channel posting action without a nonempty `thread_ts`.
+Never call a source-channel posting action without a nonempty thread timestamp.
 
 Keep the reply short:
 
