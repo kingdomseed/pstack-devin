@@ -6,7 +6,8 @@ trigger: always_on
 # pstack model configuration. One line per role. Delete a line to fall back to the skill default.
 # Values are Devin subagent profiles: pstack:worker (swe-2-max), pstack:luna (gpt-5-6-luna-xhigh),
 # pstack:sol (gpt-5-6-sol-high), pstack:terra (gpt-5-6-terra-xhigh), pstack:kimi (kimi-k3-max),
-# pstack:fable (claude-fable-5-1-max), subagent_explore (read-only, router default),
+# pstack:fable (claude-fable-5-1-max), pstack:astra (gpt-6-astra-high), pstack:grok (grok-4-6-xhigh),
+# pstack:gemini (gemini-3-8-flash-high), subagent_explore (read-only, router default),
 # subagent_general (inherits the parent model).
 # Profile entries in a panel list still count toward its fan-out.
 feature, refactoring: pstack:worker
@@ -14,16 +15,16 @@ bug-fix: pstack:sol
 perf-issue: pstack:sol
 hillclimb: pstack:sol
 judgment and prose: subagent_general
-hardest tasks: pstack:sol
+hardest tasks: pstack:astra
 how explorer: pstack:worker
 how explainer: subagent_general
-how critics: pstack:luna, pstack:fable
+how critics: pstack:grok, pstack:fable
 why investigators: pstack:worker
 why synthesizer: subagent_general
 reflect tooling: pstack:sol
 reflect judgment, divergent, synthesizer: subagent_general
 arena runners: pstack:worker, pstack:luna
-arena cross-judge pool: subagent_general, pstack:fable, pstack:kimi
+arena cross-judge pool: subagent_general, pstack:fable, pstack:grok
 swarm workers: pstack:worker
-architect runners: pstack:sol, pstack:fable, pstack:kimi
-interrogate reviewers: pstack:sol, pstack:fable, pstack:kimi
+architect runners: pstack:sol, pstack:gemini, pstack:kimi
+interrogate reviewers: pstack:sol, pstack:grok, pstack:fable

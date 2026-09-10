@@ -32,8 +32,9 @@ Plugin `agents/` profiles are local-session only (CLI + Desktop). Cloud Devin se
 | workers, fan-out, poteto-mode runner, comment review | `pstack:worker`, `pstack:poteto-agent`, `pstack:comment-sicko` | swe-2-max (free) |
 | alternate worker | `pstack:luna` | gpt-5-6-luna-xhigh |
 | heavy implementation | `pstack:sol` | gpt-5-6-sol-high |
+| hardest tasks | `pstack:astra` | gpt-6-astra-high |
 | judgment + review seat | `pstack:fable` | claude-fable-5-1-max |
-| panel seats | `pstack:terra`, `pstack:kimi` | terra-xhigh, kimi-k3-max |
+| panel seats | `pstack:kimi`, `pstack:grok`, `pstack:gemini`, `pstack:terra` | kimi-k3-max, grok-4-6-xhigh, gemini-3-8-flash-high, terra-xhigh |
 | judgment + prose | `subagent_general` | inherits parent |
 | read-only explore | `subagent_explore` | router default |
 
