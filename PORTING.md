@@ -40,9 +40,9 @@ Style: **full conversion** — every file speaks Devin natively. No adapter skil
 | alternate worker / cheap strong seat | `pstack:luna` | `gpt-5-6-luna-xhigh` ($0.20/M, 1M ctx; `-max` for gnarly slices) |
 | trivial/bulk fan-out | `subagent_explore` or a `swe-1-7`-pinned profile | `swe-1-7` is free (262K ctx) |
 | high-powered implementation (bug-fix, perf, hillclimb, precise sequences, reflect tooling) | `pstack:sol` | `gpt-5-6-sol-high` |
-| judgment + prose (explainers, synthesizers, lead review, unslop-sensitive) | `subagent_general` | inherits parent |
+| judgment + prose (explainers, synthesizers, lead review, unslop-sensitive) | `subagent_general` or `pstack:fable` | inherits parent / `claude-fable-5-1-max` |
 | read-only exploration/critics when no model named | `subagent_explore` | router default (SWE-1.6) |
-| panel diversity seats | `pstack:worker`, `pstack:luna`, `pstack:sol`, `pstack:terra`, `pstack:kimi`, `subagent_general` | swe-2-max / luna-xhigh / sol-high / terra-xhigh / kimi-k3-max / parent — six real families, drop seats rather than duplicating |
+| panel diversity seats | `pstack:worker`, `pstack:luna`, `pstack:sol`, `pstack:terra`, `pstack:kimi`, `pstack:fable`, `subagent_general` | swe-2-max / luna-xhigh / sol-high / terra-xhigh / kimi-k3-max / fable-5-1-max / parent — distinct families, drop seats rather than duplicating |
 
 Devin UID spellings use dashes between version parts: `gpt-5-6-sol-high`, `gpt-5-6-luna-xhigh`, `gpt-5-6-terra-xhigh`, `swe-2-max`, `swe-1-7`, `kimi-k3-max`, `claude-fable-5-1-max`.
 
