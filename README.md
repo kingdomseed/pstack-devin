@@ -29,7 +29,8 @@ Plugin `agents/` profiles are local-session only (CLI + Desktop). Cloud Devin se
 
 | role | profile | model |
 |---|---|---|
-| workers, fan-out, poteto-mode runner, comment review | `pstack:worker`, `pstack:poteto-agent`, `pstack:comment-sicko` | swe-2-max (free) |
+| workers, fan-out, poteto-mode runner | `pstack:worker`, `pstack:poteto-agent` | swe-2-max (free) |
+| comment classifier | `pstack:comment-sicko` | swe-1-7 (free) |
 | alternate worker | `pstack:luna` | gpt-5-6-luna-xhigh |
 | heavy implementation | `pstack:sol` | gpt-5-6-sol-high |
 | hardest tasks | `pstack:astra` | gpt-6-astra-high |
